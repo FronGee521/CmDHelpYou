@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#245edb">
+  <title>CMD TROLLBOX — Windows XP</title>
+  <style>
+    :root {
+      --blue: #1768cf;
+      --blue-dark: #0c3997;
+      --blue-soft: #dceafb;
+      --ink: #17365f;
+      --muted: #657a97;
+      --line: #b9cbe2;
+      --panel: #edf3fb;
+      --white: #fff;
+      --shadow: 0 18px 48px rgba(14, 47, 103, .27);
+    }
+    * { box-sizing: border-box; }
+    html { min-width: 320px; background: #78b6e8; }
+    body {
+      margin: 0; min-height: 100vh; padding: 34px 18px 54px;
+      color: var(--ink); font-family: Tahoma, Verdana, Arial, sans-serif;
+      background:
+        radial-gradient(ellipse 42% 18% at 25% 83%, #9bd36f 0 55%, transparent 56%),
+        radial-gradient(ellipse 50% 23% at 78% 88%, #65ad48 0 57%, transparent 58%),
+        linear-gradient(180deg, #4d9cde 0%, #9bd0f0 68%, #77b84e 69%, #3f943d 100%);
+      background-attachment: fixed;
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible { outline: 3px solid #ffcf4b; outline-offset: 2px; }
+    .desktop-shortcut {
+      position: fixed; z-index: 0; top: 15px; left: 19px; display: grid; justify-items: center; gap: 4px;
+      width: 72px; color: #fff; font-size: 10px; text-shadow: 0 1px 3px #24517e; user-select: none;
+    }
+    .desktop-shortcut .pc { font-size: 30px; filter: drop-shadow(0 2px 2px #315b7b66); }
+    .window {
+      position: relative; z-index: 1; width: min(1160px, 100%); margin: 0 auto;
+      overflow: hidden; border: 1px solid #17469f; border-radius: 8px 8px 4px 4px;
+      background: #eaf1fa; box-shadow: var(--shadow), inset 0 1px #ffffffa8;
+    }
+    .titlebar {
+      min-height: 38px; display: flex; align-items: center; gap: 9px; padding: 5px 7px 5px 11px;
+      color: white; font-size: 13px; font-weight: bold; text-shadow: 0 1px 1px #163a76;
+      background: linear-gradient(#69adff 0%, #2875e5 18%, #1555c8 58%, #1b4bb4 100%);
+      border-bottom: 1px solid #0b368e;
+    }
+    .app-icon {
+      width: 20px; height: 20px; display: grid; place-items: center; flex: 0 0 auto;
+      border: 1px solid #ffffffb8; border-radius: 4px; color: #a9f1a2;
+      background: linear-gradient(145deg, #203e65, #07182d); font: bold 11px "Lucida Console", monospace;
+      box-shadow: 0 1px 2px #0005;
+    }
+    .title-text { flex: 1; }
+    .window-controls { display: flex; gap: 3px; }
+    .window-control {
+      width: 22px; height: 21px; padding: 0; border: 1px solid #ffffffb8; border-radius: 3px;
+      color: #fff; font-size: 12px; font-weight: bold; line-height: 16px;
+      background: linear-gradient(#80baff, #2767d5 55%, #1749ac); box-shadow: 0 1px 1px #0004;
+    }
+    .window-control.close { background: linear-gradient(#ffaaa0, #e34a35 55%, #b51c13); }
+    .menubar {
+      display: flex; gap: 21px; padding: 7px 14px; color: #263e5d; font-size: 11px;
+      background: linear-gradient(#fff, #e8eef7); border-bottom: 1px solid #cad7e8;
+    }
+    .hero {
+      display: flex; justify-content: space-between; align-items: center; gap: 20px;
+      padding: 21px 24px 18px; background: linear-gradient(110deg, #fbfdff, #e6f0fc 74%, #d9e8fa);
+      border-bottom: 1px solid #bfd0e5;
+    }
+    h1 { margin: 0; color: #173f7d; font-size: clamp(23px, 4vw, 31px); letter-spacing: -.65px; }
+    h1 span { color: #5689cc; }
+    .hero p { max-width: 680px; margin: 7px 0 0; color: #5a7190; font-size: 12px; line-height: 1.55; }
+    .main { padding: 17px 19px 19px; background: #edf3fb; }
+    .tabs { display: flex; align-items: flex-end; gap: 4px; padding: 0 7px; border-bottom: 1px solid #9aafcb; }
+    .tab {
+      min-width: 146px; padding: 10px 17px 9px; border: 1px solid #b9c9de; border-bottom: 0;
+      border-radius: 6px 6px 0 0; color: #41618a; background: linear-gradient(#f9fbfe, #dce7f5);
+      box-shadow: inset 0 1px #fff; font-size: 12px; font-weight: bold;
+    }
+    .tab:hover { background: linear-gradient(#fff, #eaf2fc); }
+    .tab[aria-selected="true"] {
+      position: relative; top: 1px; color: #173e7a; background: linear-gradient(#fff, #f8fbff);
+      border-color: #91aaca; box-shadow: inset 0 2px #fff;
+    }
+    .tab-icon { margin-right: 7px; font-size: 13px; }
+    .toolbar {
+      display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 14px 12px;
+      border: 1px solid #c3d2e5; border-top: 0; background: linear-gradient(#fff, #f4f8fd);
+    }
+    .toolbar-title { color: #244c84; font-size: 12px; font-weight: bold; }
+    .result-count { margin-top: 4px; color: #8293aa; font-size: 10px; }
+    .search-wrap { position: relative; width: min(340px, 54%); }
+    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #7187a4; font-size: 14px; }
+    .search {
+      width: 100%; height: 33px; padding: 0 11px 0 31px; border: 1px solid #aebfd5; border-radius: 3px;
+      color: #18365e; background: #fff; font-size: 11px;
+      box-shadow: inset 0 1px 2px #23416917, 0 1px #fff;
+    }
+    .search::placeholder { color: #91a0b4; }
+    .category-row {
+      display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 14px;
+      border: 1px solid #c3d2e5; border-top: 0; background: #f8fbff;
+    }
+    .filter {
+      padding: 5px 10px; border: 1px solid #c0cee0; border-radius: 18px;
+      color: #5b7291; background: linear-gradient(#fff, #edf3fa); font-size: 10px;
+    }
+    .filter:hover { border-color: #7da4d8; color: #2455a0; }
+    .filter.active {
+      border-color: #5285ce; color: #fff; background: linear-gradient(#6fa1e8, #3974c7);
+      box-shadow: inset 0 1px #ffffff52, 0 1px 2px #1f4d9129;
+    }
+    .cards {
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; padding: 13px;
+      min-height: 210px; border: 1px solid #c3d2e5; border-top: 0;
+      background: linear-gradient(#f7faff, #eaf1fa);
+    }
+    .card {
+      min-width: 0; padding: 12px 13px 11px; border: 1px solid #c8d6e8; border-radius: 5px;
+      background: linear-gradient(135deg, #fff, #f8fbff); box-shadow: 0 1px 2px #2749770f, inset 0 1px #fff;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .card:hover { border-color: #91b1dc; box-shadow: 0 3px 10px #2a53911c; }
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .card-title { margin: 0; color: #1d477f; font-size: 13px; line-height: 1.35; font-weight: bold; }
+    .tag {
+      flex: 0 0 auto; padding: 3px 6px; border: 1px solid #d1dfef; border-radius: 3px;
+      color: #6681a7; background: #eaf1fb; font-size: 9px; white-space: nowrap;
+    }
+    .description { min-height: 32px; margin: 7px 0 10px; color: #63758d; font-size: 11px; line-height: 1.5; }
+    pre {
+      max-height: 230px; overflow: auto; margin: 0; padding: 9px 10px; border: 1px solid #0c1723; border-radius: 4px;
+      color: #d7f0dc; background: #172331; font: 11px/1.55 "Lucida Console", Consolas, monospace;
+      white-space: pre-wrap; overflow-wrap: anywhere; box-shadow: inset 0 1px 4px #0003;
+      scrollbar-color: #58728c #1b2b3b;
+    }
+    .card-bottom { display: flex; align-items: center; justify-content: space-between; gap: 9px; margin-top: 9px; }
+    .hint { color: #91a0b2; font-size: 9px; line-height: 1.4; }
+    .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+    .action {
+      padding: 6px 9px; border: 1px solid #9db4d3; border-radius: 3px; color: #28558f;
+      background: linear-gradient(#fff, #e4edf8); font-size: 10px; font-weight: bold;
+      box-shadow: inset 0 1px #fff, 0 1px 1px #1e417012; white-space: nowrap;
+    }
+    .action:hover { border-color: #6b96ce; background: linear-gradient(#fff, #d7e7fa); }
+    .action:active { background: linear-gradient(#d9e6f5, #fff); transform: translateY(1px); }
+    .action.copied { color: #237032; border-color: #9bcba0; background: linear-gradient(#f6fff5, #dff2df); }
+    .empty { grid-column: 1 / -1; padding: 44px 15px; color: #7185a1; font-size: 12px; text-align: center; }
+    .empty strong { display: block; margin-bottom: 5px; color: #3e5d86; font-size: 14px; }
+    .tip {
+      display: flex; align-items: flex-start; gap: 9px; margin-top: 11px; padding: 9px 11px;
+      border: 1px solid #d7c99f; border-radius: 4px; color: #786b45;
+      background: linear-gradient(#fffdf5, #fff8df); font-size: 10px; line-height: 1.5;
+    }
+    .tip b { color: #6f5c2d; }
+    .taskbar {
+      position: fixed; z-index: 5; bottom: 0; left: 0; right: 0; height: 34px;
+      display: flex; align-items: center; gap: 9px; padding: 3px 8px;
+      border-top: 1px solid #8db9f3; background: linear-gradient(#3279df, #1454b8 45%, #1749a3);
+      box-shadow: 0 -2px 8px #07245c2e;
+    }
+    .start-button {
+      height: 28px; min-width: 96px; padding: 0 13px 0 10px; display: flex; align-items: center; gap: 7px;
+      border: 1px solid #256d25; border-radius: 0 12px 12px 0; color: #fff;
+      background: linear-gradient(#7bc75d, #36a321 50%, #258416);
+      box-shadow: inset 0 1px #ffffff8c, 1px 0 4px #0004; font-size: 12px; font-weight: bold; font-style: italic;
+      text-shadow: 0 1px 1px #236b1a;
+    }
+    .start-orb { font-style: normal; font-size: 15px; }
+    .task-item {
+      height: 25px; min-width: 190px; padding: 4px 10px; border: 1px solid #103e91; border-radius: 3px;
+      color: white; background: linear-gradient(#245db6, #17469c); box-shadow: inset 0 1px #ffffff26;
+      font-size: 10px; text-align: left;
+    }
+    .clock {
+      min-width: 70px; height: 28px; margin-left: auto; padding: 7px 10px;
+      border-left: 1px solid #ffffff45; color: #fff; background: #0a317d5c;
+      font: 10px "Lucida Console", monospace; text-align: center;
+    }
+    @media (max-width: 700px) {
+      body { padding: 10px 7px 51px; }
+      .desktop-shortcut, .menubar { display: none; }
+      .hero { padding: 17px 15px; }
+      .main { padding: 12px 8px; }
+      .cards { grid-template-columns: 1fr; padding: 9px; }
+      .toolbar { align-items: stretch; flex-direction: column; }
+      .search-wrap { width: 100%; }
+      .tab { min-width: 0; flex: 1; padding: 10px 8px; }
+      .task-item { min-width: 0; flex: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="desktop-shortcut" aria-hidden="true"><span class="pc">🖥️</span><span>Мой компьютер</span></div>
+
+  <main class="window" aria-label="CMD TROLLBOX">
+    <div class="titlebar">
+      <span class="app-icon">_&gt;</span>
+      <span class="title-text">CMD TROLLBOX</span>
+      <div class="window-controls" aria-hidden="true">
+        <button class="window-control" tabindex="-1">_</button>
+        <button class="window-control" tabindex="-1">▢</button>
+        <button class="window-control close" tabindex="-1">×</button>
+      </div>
+    </div>
+    <div class="menubar" aria-hidden="true"><span>Файл</span><span>Правка</span><span>Вид</span><span>Избранное</span><span>Справка</span></div>
+
+    <header class="hero">
+      <div>
+        <h1>CMD TROLLBOX <span>/ XP</span></h1>
+        <p>Команды CMD и готовые BAT-сценарии: консольные эффекты, мини-игры и небольшие приколы. Выбирай, копируй ...</p>
+      </div>
+    </header>
+
+    <section class="main">
+      <nav class="tabs" role="tablist" aria-label="Тип материалов">
+        <button class="tab" id="cmd-tab" role="tab" aria-selected="true" aria-controls="catalog" data-mode="cmd"><span class="tab-icon">▣</span>CMD</button>
+        <button class="tab" id="bat-tab" role="tab" aria-selected="false" aria-controls="catalog" data-mode="bat"><span class="tab-icon">▤</span>BAT’nik</button>
+      </nav>
+      <div class="toolbar">
+        <div>
+          <div class="toolbar-title" id="section-title">Команды командной строки</div>
+          <div class="result-count" id="result-count"></div>
+        </div>
+        <label class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input class="search" id="search" type="search" placeholder="Найти команду или сценарий…" autocomplete="off">
+        </label>
+      </div>
+      <div class="category-row" id="categories" aria-label="Фильтр по категориям"></div>
+      <div class="cards" id="catalog" role="tabpanel" aria-labelledby="cmd-tab"></div>
+      <div class="tip"><span>ⓘ</span><div><b>Перед запуском BAT:</b> сначала просмотри код. Сценарии здесь только показывают пример, а не гарантируют безопасность.</div></div>
+    </section>
+  </main>
+
+  <div class="taskbar" aria-hidden="true">
+    <div class="start-button"><span class="start-orb">❖</span> Пуск</div>
+    <div class="task-item">▣ &nbsp; CMD TROLLBOX</div>
+    <div class="clock" id="clock">--:--</div>
+  </div>
+
+  <script>
+    const entries = {
+      cmd: [
+        { title: "Очистить окно", category: "Консоль", command: "cls", description: "Очищает содержимое текущего окна командной строки.", hint: "Только чтение" },
+        { title: "Зелёный хакерский цвет", category: "Консоль", command: "color 0A", description: "Устанавливает чёрный фон и ярко-зелёный текст.", hint: "Только чтение" },
+        { title: "Сменить заголовок окна", category: "Консоль", command: "title SYSTEM CONTROL CENTER", description: "Меняет текст в заголовке окна CMD.", hint: "Полезно для фокуса" },
+        { title: "Поменять приглашение CMD", category: "Консоль", command: "prompt [HACKER] $P$G", description: "Меняет строку перед вводом команды.", hint: "Только оформление" },
+        { title: "Напечатать сообщение", category: "Консоль", command: "echo SYSTEM CHECK: OK", description: "Выводит строку в консоль.", hint: "Базовый пример" },
+        { title: "Случайное число", category: "Консоль", command: "echo %random%", description: "Показывает псевдослучайное целое число от 0 до 32767.", hint: "Псевдослучайность" },
+        { title: "Сложить числа", category: "Консоль", command: "set /a 128+64", description: "Выполняет простую арифметику прямо в командной строке.", hint: "Математика" },
+        { title: "Показать дату и время", category: "Время", command: "echo %date% %time%", description: "Выводит системные дату и время в формате Windows.", hint: "Системные данные" },
+        { title: "Показать дату", category: "Время", command: "date /t", description: "Показывает текущую дату без запроса на её изменение.", hint: "Только чтение" },
+        { title: "Показать время", category: "Время", command: "time /t", description: "Показывает текущее время без запроса на изменение.", hint: "Только чтение" },
+        { title: "Версия Windows", category: "Система", command: "ver", description: "Выводит номер версии Windows.", hint: "Только чтение" },
+        { title: "Сведения о системе", category: "Система", command: "systeminfo", description: "Показывает сведения об ОС, процессоре, памяти и драйверах.", hint: "Детализация" },
+        { title: "Имя компьютера", category: "Система", command: "hostname", description: "Показывает сетевое имя компьютера.", hint: "Только чтение" },
+        { title: "Имя пользователя", category: "Система", command: "echo %username%", description: "Выводит имя текущей учётной записи Windows.", hint: "Только чтение" },
+        { title: "Путь к CMD", category: "Система", command: "echo %COMSPEC%", description: "Показывает путь к командному интерпретатору Windows.", hint: "Только чтение" },
+        { title: "Список процессов", category: "Система", command: "tasklist", description: "Показывает запущенные процессы. Ничего не трогает.", hint: "Системный монитор" },
+        { title: "Сетевые параметры", category: "Сеть", command: "ipconfig", description: "Показывает IP-адрес и основные параметры сетевого адаптера.", hint: "Базовый сетевой статус" },
+        { title: "Подробности сетевых адаптеров", category: "Сеть", command: "ipconfig /all", description: "Выводит расширенные сведения о MAC и DNS.", hint: "Детальная диагностика" },
+        { title: "Проверить TCP/IP", category: "Сеть", command: "ping 127.0.0.1 -n 4", description: "Четыре раза проверяет локальный loopback-адрес.", hint: "Локальная проверка" },
+        { title: "Маршрут до самого себя", category: "Сеть", command: "tracert 127.0.0.1", description: "Показывает маршрут до локального loopback.", hint: "Трассировка PATH" },
+        { title: "Сетевые соединения", category: "Сеть", command: "netstat -ano", description: "Показывает все сетевые соединения и их PID.", hint: "Проверка активностей" },
+        { title: "MAC-адрес адаптера", category: "Сеть", command: "getmac", description: "Выводит физические адреса сетевых адаптеров компьютера.", hint: "Только чтение" },
+        { title: "Содержимое папки", category: "Файлы", command: "dir", description: "Показывает файлы и подпапки текущего каталога.", hint: "Каталог" },
+        { title: "Показать скрытые файлы", category: "Файлы", command: "dir /a", description: "Показывает содержимое папки, включая скрытые и системные файлы.", hint: "Расширенный просмотр" },
+        { title: "Дерево папок", category: "Файлы", command: "tree /A", description: "Рисует структуру папок текущего каталога символами ASCII.", hint: "Структура" },
+        { title: "Текущая папка", category: "Файлы", command: "cd", description: "Показывает путь к текущему рабочему каталогу.", hint: "Текущее место" },
+        { title: "Перейти в папку пользователя", category: "Файлы", command: "cd /d %USERPROFILE%", description: "Переключает текущую консоль в домашнюю папку пользователя.", hint: "Удобство" },
+        { title: "Найти Блокнот", category: "Файлы", command: "where notepad", description: "Ищет исполняемый файл notepad в каталогах из переменной PATH.", hint: "Поиск" },
+        { title: "Показать том C:", category: "Файлы", command: "vol C:", description: "Показывает метку и серийный номер тома C:.", hint: "Только чтение" },
+        { title: "Кодовая страница", category: "Система", command: "chcp", description: "Показывает текущую кодовую страницу консоли.", hint: "Текущая кодировка" },
+        { title: "История команд", category: "Консоль", command: "doskey /history", description: "Показывает команды, введённые в текущем сеансе консоли.", hint: "Журнал ввода" },
+        { title: "Переменные среды", category: "Система", command: "set", description: "Показывает переменные среды текущего процесса.", hint: "Отладка окружения" },
+        { title: "Ассоциация TXT", category: "Файлы", command: "assoc .txt", description: "Показывает, с каким типом файла связаны документы TXT.", hint: "Тип файла" },
+        { title: "Справка по CMD", category: "Справка", command: "help", description: "Показывает список встроенных команд командного интерпретатора.", hint: "Справка" },
+        { title: "Справка по команде COLOR", category: "Справка", command: "help color", description: "Показывает синтаксис и параметры команды COLOR.", hint: "Подробная справка" },
+        { title: "Цикл на пять строк", category: "Консоль", command: "for /L %i in (1,1,5) do @echo LINE %i", description: "Выполняет команду пять раз, печатая номер строки.", hint: "Простой цикл" },
+        { title: "Размер окна консоли", category: "Консоль", command: "mode con", description: "Показывает текущие параметры консоли: размер окна и буфера.", hint: "Настройки терминала" }
+      ],
+      bat: [
+        { title: "XP-приветствие", category: "Заставки", description: "Короткая зелёная заставка в стиле старого системного терминала.", hint: "Эффект загрузки", code: "title XP SYSTEM CONSOLE\ncolor 0A\ncls\necho.\necho  ========================================\necho       WINDOWS XP - SYSTEM CONSOLE\necho  ========================================\necho.\necho  Initializing classroom terminal...\nping 127.0.0.1 -n 3 >nul\necho  Terminal loaded.\necho.\npause\ncolor 07" },
+        { title: "Фальшивое сканирование", category: "Эффекты", description: "Рисует прогресс-бар от 10 до 100%. Ничего не сканирует по-настоящему.", hint: "Практический эффект", code: "@echo off\nsetlocal EnableDelayedExpansion\ntitle SYSTEM SCAN - DEMO\ncolor 0A\nfor /L %%i in (1,1,10) do (\n  cls\n  set /a pct=%%i*10\n  set \"bar=\"\n  for /L %%b in (1,1,%%i) do set \"bar=!bar!#\"\n  echo.\n  echo  [ DEMO ] IMAGINARY SYSTEM SCAN\n  echo.\n  echo  Progress: !pct!%%\n  echo  [!bar!]\n  ping 127.0.0.1 -n 2 >nul\n)\necho.\necho  Simulation finished. No files were scanned.\npause\ncolor 07" },
+        { title: "Matrix — поток символов", category: "Эффекты", description: "Показывает конечную порцию псевдокода и останавливает демонстрацию.", hint: "Кино-стиль", code: "title MATRIX CLASSROOM DEMO\ncolor 0A\ncls\nfor /L %%i in (1,1,12) do (\n  echo  010101  NODE_%%i  101001  ACCESS_LOG  001101\n  echo  110010  DATA_STREAM  010111  CACHE_OK  100101\n  ping 127.0.0.1 -n 2 >nul\n)\necho.\necho  End of demo.\npause\ncolor 07" },
+        { title: "Цветовая карусель", category: "Эффекты", description: "Меняет цвет текста и фона по кругу, затем возвращает стандартный белый цвет.", hint: "Цветной цикл", code: "title COLOR SHOW\nfor %%C in (0A 0B 0C 0D 0E 0F) do (\n  color %%C\n  echo  COLOR TEST - WINDOWS CMD\n  ping 127.0.0.1 -n 2 >nul\n)\ncolor 07\necho.\necho  Color demo finished.\npause" },
+        { title: "Хакерский спектакль", category: "Приколы", description: "Театральный лог с вымышленными действиями. Никаких реальных действий не выполняется.", hint: "Шутка", code: "title ACCESS TERMINAL - SIMULATION\ncolor 0A\ncls\necho Connecting to server... [SIMULATION]\nping 127.0.0.1 -n 3 >nul\necho Analyzing secret files... [SIMULATION]\nping 127.0.0.1 -n 3 >nul\necho Searching password... [SIMULATION]\nping 127.0.0.1 -n 3 >nul\necho.\necho ACCESS GRANTED - JUST A JOKE :)\necho Nothing was accessed or changed.\necho.\npause\ncolor 07" },
+        { title: "Фальшивое обновление XP", category: "Приколы", description: "Имитирует экран обновления с процентами. Windows при этом не обновляется.", hint: "Экран загрузки", code: "@echo off\nsetlocal EnableDelayedExpansion\ntitle WINDOWS UPDATE - DEMO\ncolor 1F\nfor /L %%i in (1,1,10) do (\n  cls\n  set /a pct=%%i*10\n  echo.\n  echo        WINDOWS UPDATE\n  echo.\n  echo  Installing imaginary updates...\n  echo.\n  echo              !pct!%%\n  echo.\n  echo  Please wait...\n  ping 127.0.0.1 -n 2 >nul\n)\ncls\necho.\necho  This was only a visual simulation.\npause\ncolor 07" },
+        { title: "Фальшивый синий экран", category: "Приколы", description: "Показывает синий экран только внутри окна CMD. Это не реальный сбой системы.", hint: "Шутка", code: "title BLUE SCREEN - DEMO\ncolor 1F\ncls\necho.\necho  A problem has been simulated.\necho.\necho  This is NOT a real Windows crash.\necho  Your computer is working normally.\necho.\necho  Press any key to return.\npause >nul\ncolor 07\ncls\necho Back to desktop.\npause" },
+        { title: "Угадай число", category: "Мини-игры", description: "Компьютер загадывает число от 1 до 5. Один раунд, без записи состояния.", hint: "Лёгкая игра", code: "@echo off\nsetlocal\nset /a secret=%random% %% 5 + 1\nset /p guess=Guess a number from 1 to 5: \nif \"%guess%\"==\"%secret%\" (\n  echo Correct! You got it.\n) else (\n  echo Not quite. The number was %secret%.\n)\necho.\npause" },
+        { title: "Короткая системная сводка", category: "Информация", description: "Показывает имя ПК, пользователя и версию Windows в одной карточке.", hint: "Быстрая диагностика", code: "title QUICK SYSTEM INFO\ncolor 0B\necho  --- COMPUTER ---\nhostname\necho.\necho  --- USER ---\necho %username%\necho.\necho  --- WINDOWS ---\nver\necho.\necho  --- TIME ---\ntime /t\necho.\npause\ncolor 07" },
+        { title: "Меню для информатики", category: "Инструменты", description: "Небольшое меню, из которого можно запускать несложные системные команды.", hint: "Учебное меню", code: "title CLASSROOM TOOLBOX\n:menu\ncls\necho  ===============================\necho       CLASSROOM TOOLBOX\necho  ===============================\necho  1. Windows version\necho  2. Computer name\necho  3. Network information\necho  4. Clear screen\necho  0. Exit\necho.\nset /p choice=Choose: \nif \"%choice%\"==\"1\" ver\nif \"%choice%\"==\"2\" hostname\nif \"%choice%\"==\"3\" ipconfig\nif \"%choice%\"==\"4\" cls\nif \"%choice%\"==\"0\" goto end\necho.\npause\ngoto menu\n:end\necho Bye!" },
+        { title: "Таймер на 10 секунд", category: "Мини-игры", description: "Отсчитывает секунды и завершает демонстрацию. Не обязательно для обучения.", hint: "Секундомер", code: "title TEN SECOND TIMER\nfor /L %%i in (10,-1,1) do (\n  cls\n  echo.\n  echo       TIME LEFT: %%i\n  ping 127.0.0.1 -n 2 >nul\n)\ncls\necho       TIME IS UP!\npause" },
+        { title: "Счётчик до 30", category: "Эффекты", description: "Показывает числа от 1 до 30 с короткой паузой между ними.", hint: "Наблюдение за циклом", code: "title COUNTER DEMO\ncolor 0A\nfor /L %%i in (1,1,30) do (\n  echo  COUNT: %%i\n  ping 127.0.0.1 -n 2 >nul\n)\necho.\necho  Counter finished.\npause\ncolor 07" },
+        { title: "Печатная машинка", category: "Эффекты", description: "Выводит фразы по очереди, будто терминал загружает сообщение по буквам.", hint: "Постепенный вывод", code: "title TYPEWRITER DEMO\ncolor 0A\ncls\necho Loading classroom terminal...\nping 127.0.0.1 -n 2 >nul\necho Welcome to CMD TROLLBOX.\nping 127.0.0.1 -n 2 >nul\necho All systems are imaginary.\nping 127.0.0.1 -n 2 >nul\necho Have a nice lesson!\necho.\npause\ncolor 07" },
+        { title: "Калькулятор суммы", category: "Инструменты", description: "Запрашивает два целых числа и складывает их командой set /a.", hint: "Лёгкая математика", code: "@echo off\nsetlocal\ntitle CMD CALCULATOR\nset /p first=Enter first integer: \nset /p second=Enter second integer: \nset /a result=first+second\necho.\necho Result: %result%\necho.\npause" },
+        { title: "Викторина: Windows", category: "Мини-игры", description: "Один вопрос с проверкой ответа. Можно изменить вопрос и ответы на свой вкус.", hint: "Лёгкая викторина", code: "@echo off\nsetlocal\ntitle WINDOWS QUIZ\ncls\necho Which command clears the CMD screen?\necho.\necho 1. dir\necho 2. cls\necho 3. ping\necho.\nset /p answer=Your answer: \nif \"%answer%\"==\"2\" (\n  echo Correct!\n) else (\n  echo The correct answer is 2: cls\n)\necho.\npause" },
+        { title: "Тест случайных цветов", category: "Эффекты", description: "Несколько раз выбирает цвет из заранее заданного набора и выводит его на экран.", hint: "Случайность", code: "@echo off\nsetlocal EnableDelayedExpansion\ntitle RANDOM COLOR TEST\nfor /L %%i in (1,1,8) do (\n  set /a pick=!random! %% 6\n  if !pick! EQU 0 color 0A\n  if !pick! EQU 1 color 0B\n  if !pick! EQU 2 color 0C\n  if !pick! EQU 3 color 0D\n  if !pick! EQU 4 color 0E\n  if !pick! EQU 5 color 0F\n  echo  COLOR RANDOMIZER - ROUND %%i\n  ping 127.0.0.1 -n 2 >nul\n)\ncolor 07\necho Color demo finished.\npause" }
+      ]
+    };
+
+    const labels = { cmd: "Команды командной строки", bat: "BAT-сценарии" };
+    const categoryOrder = {
+      cmd: ["Все", "Консоль", "Система", "Сеть", "Файлы", "Время", "Справка"],
+      bat: ["Все", "Заставки", "Эффекты", "Приколы", "Мини-игры", "Информация", "Инструменты"]
+    };
+    let mode = "cmd";
+    let activeCategory = "Все";
+
+    const catalog = document.getElementById("catalog");
+    const search = document.getElementById("search");
+    const categories = document.getElementById("categories");
+    const count = document.getElementById("result-count");
+    const sectionTitle = document.getElementById("section-title");
+
+    function renderCategories() {
+      categories.replaceChildren();
+      categoryOrder[mode].forEach(category => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "filter" + (category === activeCategory ? " active" : "");
+        button.textContent = category;
+        button.setAttribute("aria-pressed", String(category === activeCategory));
+        button.addEventListener("click", () => {
+          activeCategory = category;
+          renderCategories();
+          renderCards();
+        });
+        categories.appendChild(button);
+      });
+    }
+
+    function makeAction(label, handler) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "action";
+      button.textContent = label;
+      button.addEventListener("click", handler);
+      return button;
+    }
+
+    function renderCards() {
+      const term = search.value.trim().toLocaleLowerCase("ru");
+      const filtered = entries[mode].filter(item => {
+        const searchable = [item.title, item.category, item.description, item.command || item.code, item.hint].join(" ").toLocaleLowerCase("ru");
+        return (activeCategory === "Все" || item.category === activeCategory) && (!term || searchable.includes(term));
+      });
+      catalog.replaceChildren();
+      count.textContent = `${filtered.length} ${mode === "cmd" ? "команд" : "сценариев"}`;
+      sectionTitle.textContent = labels[mode];
+      catalog.setAttribute("aria-labelledby", mode === "cmd" ? "cmd-tab" : "bat-tab");
+
+      if (!filtered.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        const heading = document.createElement("strong");
+        heading.textContent = "Ничего не найдено";
+        const detail = document.createElement("span");
+        detail.textContent = "Попробуй другое название или выбери категорию «Все».";
+        empty.append(heading, detail);
+        catalog.appendChild(empty);
+        return;
+      }
+
+      filtered.forEach(item => {
+        const card = document.createElement("article");
+        card.className = "card";
+        const top = document.createElement("div");
+        top.className = "card-top";
+        const title = document.createElement("h2");
+        title.className = "card-title";
+        title.textContent = item.title;
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = item.category;
+        top.append(title, tag);
+
+        const description = document.createElement("p");
+        description.className = "description";
+        description.textContent = item.description;
+        const code = document.createElement("pre");
+        code.textContent = mode === "cmd" ? item.command : item.code;
+
+        const bottom = document.createElement("div");
+        bottom.className = "card-bottom";
+        const hint = document.createElement("span");
+        hint.className = "hint";
+        hint.textContent = item.hint;
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        const payload = mode === "cmd" ? item.command : item.code;
+        const copyButton = makeAction("Копировать", async () => {
+          const copied = await copyText(payload);
+          copyButton.textContent = copied ? "Скопировано ✓" : "Выдели код вручную";
+          copyButton.classList.toggle("copied", copied);
+          window.setTimeout(() => {
+            copyButton.textContent = "Копировать";
+            copyButton.classList.remove("copied");
+          }, 1500);
+        });
+        actions.appendChild(copyButton);
+        if (mode === "bat") {
+          const downloadButton = makeAction("Скачать .bat", () => downloadBat(item.title, item.code));
+          actions.appendChild(downloadButton);
+        }
+        bottom.append(hint, actions);
+        card.append(top, description, code, bottom);
+        catalog.appendChild(card);
+      });
+    }
+
+    async function copyText(text) {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch (error) { /* fallback for file:// pages */ }
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.setAttribute("readonly", "");
+      area.style.position = "fixed";
+      area.style.left = "-9999px";
+      document.body.appendChild(area);
+      area.select();
+      let success = false;
+      try { success = document.execCommand("copy"); } catch (error) { success = false; }
+      area.remove();
+      return success;
+    }
+
+    function downloadBat(name, text) {
+      const safeName = name.toLowerCase().replace(/[^a-z0-9а-яё]+/gi, "_").replace(/^_+|_+$/g, "") || "script";
+      const blob = new Blob(["\uFEFF" + text.replace(/\n/g, "\r\n")], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = safeName + ".bat";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        mode = tab.dataset.mode;
+        activeCategory = "Все";
+        document.querySelectorAll(".tab").forEach(other => other.setAttribute("aria-selected", String(other === tab)));
+        search.value = "";
+        renderCategories();
+        renderCards();
+      });
+    });
+    search.addEventListener("input", renderCards);
+
+    function updateClock() {
+      document.getElementById("clock").textContent = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+    }
+    updateClock();
+    window.setInterval(updateClock, 15000);
+    renderCategories();
+    renderCards();
+  </script>
+</body>
+</html>
